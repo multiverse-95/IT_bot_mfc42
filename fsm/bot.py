@@ -12,6 +12,7 @@ from app.handlers.buh1C import register_handlers_buh_1C
 from app.handlers.queue_mfc import register_handlers_queue
 from app.handlers.printer import register_handlers_printer
 from app.handlers.common import register_handlers_common
+from app.handlers.other import register_handlers_other_commands
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +54,7 @@ async def main():
     register_handlers_buh_1C(dp)
     register_handlers_queue(dp)
     register_handlers_printer(dp)
+    register_handlers_other_commands(dp)
 
 
     # Установка команд бота

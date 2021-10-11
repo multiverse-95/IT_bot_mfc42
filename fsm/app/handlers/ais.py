@@ -12,7 +12,7 @@ from aiogram.types import ParseMode
 
 config = load_config("config/bot.ini")
 admin_group_id = int(config.tg_bot.admin_group_id)
-
+regexp_ais = '(\W|^)аис.*(\W|$)'
 available_ais_problems = ["проблема с АИС", "проблема с заявлением в АИС"]
 available_ais_errors = {
     'RejectionReasonCode: NO_DATA RejectionReasonDescription:': 'Вы загрузили файл слишком большого размера. Попробуйте загрузить файл меньшего размера.',
@@ -181,3 +181,5 @@ def register_handlers_ais(dp: Dispatcher):
     dp.register_message_handler(ais_request_problem, state=OrderAis.waiting_for_ais_request_problem)
     dp.register_message_handler(ais_request_problem_try_again, state=OrderAis.waiting_for_ais_request_problem_try_again)
     dp.register_message_handler(ais_other_problem_chosen, content_types=types.ContentType.all(), state=OrderAis.waiting_for_other_ais_problem)
+    # Поиск через регулярные выражения
+    dp.register_message_handler(ais_start, regexp=regexp_ais, state="*")

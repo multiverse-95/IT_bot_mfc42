@@ -13,6 +13,7 @@ from fsm.app.config_reader import load_config
 config = load_config("config/bot.ini")
 admin_group_id = int(config.tg_bot.admin_group_id)
 
+regexp_pkpvd = '.*пк\sпвд.*|.*пвд.*'
 available_pkpvd_problems = ["Не работает или зависает ПК ПВД", "Ошибка в обращении"]
 available_pkpvd_errors = {
     'Duplicate unique value [usage Purpose] declared for identity constraint of element \"note Group\".':
@@ -219,4 +220,6 @@ def register_handlers_pkpvd(dp: Dispatcher):
     dp.register_message_handler(pkpvd_request_problem, state=OrderPkpvd.waiting_for_pkpvd_request_problem)
     dp.register_message_handler(pkpvd_request_problem_try_again, state=OrderPkpvd.waiting_for_pkpvd_request_problem_try_again)
     dp.register_message_handler(pkpvd_other_problem_chosen, content_types=types.ContentType.all(), state=OrderPkpvd.waiting_for_other_pkpvd_problem)
+    # Поиск через регулярные выражения
+    dp.register_message_handler(pkpvd_start, regexp=regexp_pkpvd, state="*")
 

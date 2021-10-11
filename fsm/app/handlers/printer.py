@@ -1,3 +1,5 @@
+import re
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -12,6 +14,7 @@ config = load_config("config/bot.ini")
 admin_group_id = int(config.tg_bot.admin_group_id)
 
 # Данные о принтерах
+regexp_printer = '.*картридж.*|.*тонер.*|.*чернил.*|.*не.*работ.*|.*не.*печат.*|.*ломалс.*'
 available_printer_problems = ["картридж закончился", "плохо печатает", "не печатает", "другая проблема"]
 available_printer_names = ["1025", "2540", "2235", "2035", "2530", "1030", "другая модель", "не могу определить модель"]
 available_printer_sizes = ["маленький", "большой", "старый", "новый"]
@@ -49,12 +52,8 @@ async def printer_start(message: types.Message):
 
 # Выбор проблемы с принтером
 async def printer_problem_chosen(message: types.Message, state: FSMContext):
-    # Если написали вариант не с кнопки
-    if message.text.lower() not in available_printer_problems:
-        await message.answer("⚠ Пожалуйста, выберите один из вариантов, используя клавиатуру ниже. ⚠")
-        return
     # Вариант с клавиатуры
-    if message.text.lower() in available_printer_problems:
+    if message.text.lower() in available_printer_problems or re.match(regexp_printer, message.text.lower()):
         # Если выбрана другая проблема
         if message.text.lower() == available_printer_problems[len(available_printer_problems) - 1].lower():
             print("other")
@@ -77,6 +76,10 @@ async def printer_problem_chosen(message: types.Message, state: FSMContext):
             await OrderPrinter.waiting_for_printer_name.set()
             # После нажатии на кнопку, бот попросит выбрать модель принтера
             await message.answer("⚠ Пожалуйста, выберите ваш принтер:", reply_markup=keyboard)
+
+    elif message.text.lower() not in available_printer_problems:
+        await message.answer("⚠ Пожалуйста, выберите один из вариантов, используя клавиатуру ниже. ⚠")
+        return
 
 # Функция для выбора другой проблемы о принтере
 async def printer_other_problem_chosen(message: types.Message, state: FSMContext):
@@ -198,8 +201,8 @@ async def window_chosen(message: types.Message, state: FSMContext):
 
 
 def register_handlers_printer(dp: Dispatcher):
+    # Работа с командами бота
     dp.register_message_handler(printer_start, commands="printer", state="*")
-    # dp.register_message_handler(printer_start, regexp='(\W|^)принтер.*(\W|$)', state="*")
     dp.register_message_handler(printer_problem_chosen, state=OrderPrinter.waiting_for_printer_problem)
     dp.register_message_handler(printer_other_problem_chosen, state=OrderPrinter.waiting_for_other_printer_problem)
     dp.register_message_handler(printer_chosen, state=OrderPrinter.waiting_for_printer_name)
@@ -207,4 +210,7 @@ def register_handlers_printer(dp: Dispatcher):
     dp.register_message_handler(printer_size_chosen, state=OrderPrinter.waiting_for_printer_size)
     dp.register_message_handler(group_in_mfc_chosen, state=OrderPrinter.waiting_available_group_in_mfc)
     dp.register_message_handler(window_chosen, state=OrderPrinter.waiting_for_window)
+    # Поиск через регулярные выражения
+    dp.register_message_handler(printer_problem_chosen, regexp=regexp_printer, state="*")
+    dp.register_message_handler(printer_start, regexp=".*принтер.*", state="*")
 

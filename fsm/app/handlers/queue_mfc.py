@@ -7,7 +7,7 @@ from fsm.app.config_reader import load_config
 
 config = load_config("config/bot.ini")
 admin_group_id = int(config.tg_bot.admin_group_id)
-
+regexp_queue = '(\W|^)очередь.*(\W|$)|(\W|^)проблема.*очеред.*(\W|$)|(\W|^)не\sработ.*очеред.*(\W|$)'
 available_queue_problems = ["Завис талон", "Завис терминал", "Завис монитор", "Зависли кнопки", "Другая проблема с очередью"]
 other_functions = "<i>Попробуйте другие функции:</i> \n" \
                   "<b>АИС, ПК ПВД, 1C, Очередь</b> \n" \
@@ -39,6 +39,11 @@ async def queue_start(message: types.Message):
 async def queue_problem_chosen(message: types.Message, state: FSMContext):
     if message.text not in available_queue_problems:
         await message.answer("⚠ Пожалуйста, выберите один из вариантов, используя клавиатуру ниже. ⚠")
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        keyboard.row(available_queue_problems[0], available_queue_problems[1])
+        keyboard.row(available_queue_problems[2], available_queue_problems[3])
+        keyboard.row(available_queue_problems[4])
+        await message.answer("⏳ Какая у вас проблема с очередью? ", reply_markup=keyboard)
         return
     if message.text in available_queue_problems:
         if message.text == available_queue_problems[len(available_queue_problems) - 1]:
@@ -132,4 +137,6 @@ def register_handlers_queue(dp: Dispatcher):
     dp.register_message_handler(queue_problem_chosen, state=OrderQueue.waiting_for_queue_problem)
     dp.register_message_handler(queue_talon_problem, content_types=types.ContentType.all(), state=OrderQueue.waiting_for_queue_talon_problem)
     dp.register_message_handler(queue_other_problem_chosen, content_types=types.ContentType.all(), state=OrderQueue.waiting_for_other_queue_problem)
+    # Поиск через регулярные выражения
+    dp.register_message_handler(queue_start, regexp=regexp_queue, state="*")
 

@@ -79,6 +79,10 @@ async def printer_problem_chosen(message: types.Message, state: FSMContext):
 
     elif message.text.lower() not in available_printer_problems:
         await message.answer("⚠ Пожалуйста, выберите один из вариантов, используя клавиатуру ниже. ⚠")
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        for name in available_printer_problems:
+            keyboard.add(name)
+        await message.answer("🖨️ Какая у вас проблема с принтером?", reply_markup=keyboard)
         return
 
 # Функция для выбора другой проблемы о принтере

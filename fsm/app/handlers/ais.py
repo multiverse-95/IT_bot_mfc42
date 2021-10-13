@@ -48,6 +48,8 @@ async def ais_start(message: types.Message):
 async def ais_problem_chosen(message: types.Message, state: FSMContext):
     if message.text not in available_ais_problems:
         await message.answer("⚠ Пожалуйста, выберите один из вариантов, используя клавиатуру ниже. ⚠")
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).row(*available_ais_problems)
+        await message.answer("🖥️ Какая у вас проблема с АИС? ", reply_markup=keyboard)
         return
     if message.text in available_ais_problems:
         if message.text == available_ais_problems[len(available_ais_problems) - 1]:

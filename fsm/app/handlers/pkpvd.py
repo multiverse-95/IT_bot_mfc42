@@ -58,6 +58,8 @@ async def pkpvd_start(message: types.Message):
 async def pkpvd_problem_chosen(message: types.Message, state: FSMContext):
     if message.text not in available_pkpvd_problems:
         await message.answer("⚠ Пожалуйста, выберите один из вариантов, используя клавиатуру ниже. ⚠")
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).row(*available_pkpvd_problems)
+        await message.answer("📋 Какая у вас проблема с ПК ПВД? ", reply_markup=keyboard)
         return
     if message.text in available_pkpvd_problems:
         if message.text == available_pkpvd_problems[len(available_pkpvd_problems) - 1]:

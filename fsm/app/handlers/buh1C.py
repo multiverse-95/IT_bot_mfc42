@@ -1,4 +1,5 @@
 from aiogram import Dispatcher, types
+import re
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from fsm.app.config_reader import load_config
@@ -6,7 +7,8 @@ from aiogram.types import ParseMode
 
 config = load_config("config/bot.ini")
 admin_group_id = int(config.tg_bot.admin_group_id)
-
+regexp_1c = '(\W|^).*1с.*завис.*(\W|$)|(\W|^).*завис.*1с(\W|$)|(\W|^).*не\sработ.*1с(\W|$)|(\W|^).*1с.*не\sработ.*(\W|$)' \
+            '|(\W|^).*1с.*весит(\W|$)|(\W|^).*1с.*висит.*(\W|$)|(\W|^).*весит.*1с(\W|$)|(\W|^).*висит.*1с(\W|$)|(\W|^).*1с.*почин.*(\W|$)|(\W|^).*почин.*1с(\W|$)'
 available_buh_1C_problems = ["Не работает/завис 1С", "Другая проблема с 1С"]
 other_functions = "<i>Попробуйте другие функции:</i> \n" \
                   "<b>АИС, ПК ПВД, 1C, Очередь</b> \n" \
@@ -32,10 +34,7 @@ async def buh_1C_start(message: types.Message):
 
 
 async def buh_1C_problem_chosen(message: types.Message, state: FSMContext):
-    if message.text not in available_buh_1C_problems:
-        await message.answer("⚠ Пожалуйста, выберите один из вариантов, используя клавиатуру ниже. ⚠")
-        return
-    if message.text in available_buh_1C_problems:
+    if message.text in available_buh_1C_problems or re.match(regexp_1c, message.text.lower()):
         if message.text == available_buh_1C_problems[len(available_buh_1C_problems) - 1]:
             await state.update_data(chosen_buh_1C_problem=message.text.lower())
             await message.answer("⚠ Пожалуйста, напишите вашу проблему с 1С. Вы также можете прикрепить файл или фото с проблемой.",
@@ -51,6 +50,11 @@ async def buh_1C_problem_chosen(message: types.Message, state: FSMContext):
             await message.bot.send_message(admin_group_id, answer_to_group)
             await message.forward(admin_group_id)
             await state.finish()
+    elif message.text not in available_buh_1C_problems:
+        await message.answer("⚠ Пожалуйста, выберите один из вариантов, используя клавиатуру ниже. ⚠")
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).row(*available_buh_1C_problems)
+        await message.answer("📚 Какая у вас проблема с 1С? ", reply_markup=keyboard)
+        return
 
 
 async def buh_1C_other_problem_chosen(message: types.Message, state: FSMContext):
@@ -89,4 +93,7 @@ def register_handlers_buh_1C(dp: Dispatcher):
     dp.register_message_handler(buh_1C_start, commands="1c", state="*")
     dp.register_message_handler(buh_1C_problem_chosen, state=OrderBuh1C.waiting_for_buh_1C_problem)
     dp.register_message_handler(buh_1C_other_problem_chosen, content_types=types.ContentType.all(), state=OrderBuh1C.waiting_for_other_buh_1C_problem)
+    # Поиск через регулярные выражения
+    dp.register_message_handler(buh_1C_problem_chosen, regexp=regexp_1c, state="*")
+    dp.register_message_handler(buh_1C_start, regexp="(\W|^)1c.*(\W|$)|(\W|^)1с.*(\W|$)|(\W|^)один\s.с.*(\W|$)|(\W|^)1\s.с.*(\W|$)", state="*")
 

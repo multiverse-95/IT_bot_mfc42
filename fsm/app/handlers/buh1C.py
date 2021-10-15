@@ -140,13 +140,13 @@ async def buh_1C_other_problem_chosen(message: types.Message, state: FSMContext)
         # Бот завершает состояние
         await state.finish()
 
-# Хандлеры для проблем с 1с
+# Хэндлеры для проблем с 1с
 def register_handlers_buh_1C(dp: Dispatcher):
-    # Хандлер для команды с 1с
+    # Хэндлер для команды с 1с
     dp.register_message_handler(buh_1C_start, commands="1c", state="*")
-    # Хандлер для выбора проблем с 1с
+    # Хэндлер для выбора проблем с 1с
     dp.register_message_handler(buh_1C_problem_chosen, state=OrderBuh1C.waiting_for_buh_1C_problem)
-    # Хандлер для выбора других проблем с 1с
+    # Хэндлер для выбора других проблем с 1с
     dp.register_message_handler(buh_1C_other_problem_chosen, content_types=types.ContentType.all(), state=OrderBuh1C.waiting_for_other_buh_1C_problem)
     # Поиск через регулярные выражения с выбором проблем с 1с
     dp.register_message_handler(buh_1C_problem_chosen, regexp=regexp_1c, state="*")

@@ -43,14 +43,14 @@ async def queue_start(message: types.Message):
     # Бот ожидает следующего состояния с выбором проблемы с очередью
     await OrderQueue.waiting_for_queue_problem.set()
 
-# Функци выбора проблемы с очередью
+# Функция выбора проблемы с очередью
 async def queue_problem_chosen(message: types.Message, state: FSMContext):
     # Если текст выбран не из кнопок
     if message.text not in available_queue_problems:
         # Бот предложит выбрать текст из кнопок
         await message.answer("⚠ Пожалуйста, выберите один из вариантов, используя клавиатуру ниже. ⚠")
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        # Распологаем кнопки в ряд
+        # Расположим кнопки в ряд
         keyboard.row(available_queue_problems[0], available_queue_problems[1])
         keyboard.row(available_queue_problems[2], available_queue_problems[3])
         keyboard.row(available_queue_problems[4])
@@ -152,7 +152,7 @@ async def queue_other_problem_chosen(message: types.Message, state: FSMContext):
         # Бот завершает состояние
         await state.finish()
 
-# Функйи для выбора проблемы с талоном
+# Функция для выбора проблемы с талоном
 async def queue_talon_problem(message: types.Message, state: FSMContext):
     # Если пользователь выбрал документ
     if message.content_type == 'document':
@@ -207,15 +207,15 @@ async def queue_talon_problem(message: types.Message, state: FSMContext):
         # Бот завершает состояние
         await state.finish()
 
-# Регистрация хендлеров для очереди
+# Регистрация хэндлеров для очереди
 def register_handlers_queue(dp: Dispatcher):
-    # Хендлер для команды очереди
+    # Хэндлер для команды очереди
     dp.register_message_handler(queue_start, commands="queue", state="*")
-    # Хендлер для выбора проблемы с очередью
+    # Хэндлер для выбора проблемы с очередью
     dp.register_message_handler(queue_problem_chosen, state=OrderQueue.waiting_for_queue_problem)
-    # Хендлер для выбора проблемы с талоном
+    # Хэндлер для выбора проблемы с талоном
     dp.register_message_handler(queue_talon_problem, content_types=types.ContentType.all(), state=OrderQueue.waiting_for_queue_talon_problem)
-    # Хендлер для другой проблемы
+    # Хэндлер для другой проблемы
     dp.register_message_handler(queue_other_problem_chosen, content_types=types.ContentType.all(), state=OrderQueue.waiting_for_other_queue_problem)
     # Поиск через регулярные выражения
     dp.register_message_handler(queue_start, regexp=regexp_queue, state="*")

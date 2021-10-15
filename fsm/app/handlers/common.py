@@ -53,12 +53,12 @@ async def cmd_cancel(message: types.Message, state: FSMContext):
     # Бот сообщает, что действие отменено
     await message.answer("Действие отменено", reply_markup=types.ReplyKeyboardRemove())
 
-# Регистрация хендлеров
+# Регистрация хэндлеров
 def register_handlers_common(dp: Dispatcher):
-    # Хендлер для команды start
+    # Хэндлер для команды start
     dp.register_message_handler(cmd_start, commands="start", state="*")
-    # Хендлер для команды help
+    # Хэндлер для команды help
     dp.register_message_handler(cmd_help, commands="help", state="*")
-    # Хендлер для команды cancel
+    # Хэндлер для команды cancel
     dp.register_message_handler(cmd_cancel, commands="cancel", state="*")
     # dp.register_message_handler(cmd_cancel, Text(equals="отмена", ignore_case=True), state="*")

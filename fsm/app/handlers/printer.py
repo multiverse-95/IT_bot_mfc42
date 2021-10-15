@@ -64,10 +64,10 @@ async def printer_problem_chosen(message: types.Message, state: FSMContext):
         # Если выбрана другая проблема
         if message.text.lower() == available_printer_problems[len(available_printer_problems) - 1].lower():
             print("other")
-            # Показать сообщение пользователю
+            # Бот показывает сообщение пользователю
             await message.answer("⚠ Пожалуйста, напишите проблему, которая у вас случилась с принтером:",
                                  reply_markup=types.ReplyKeyboardRemove())
-            # Ожидание состояния принтера с другой проблемой
+            # Бот ожидает состояние принтера с другой проблемой
             await OrderPrinter.waiting_for_other_printer_problem.set()
         else:  # Если выбрана конкретная проблема
             print("yes i know my problem with printer")
@@ -82,19 +82,19 @@ async def printer_problem_chosen(message: types.Message, state: FSMContext):
             keyboard.row(available_printer_names[4], available_printer_names[5])
             keyboard.row(available_printer_names[6])
             keyboard.row(available_printer_names[7])
-            # Ожидаем следующее состояние - модель принтера
+            # Бот ожидает следующее состояние - модель принтера
             await OrderPrinter.waiting_for_printer_name.set()
             # После нажатии на кнопку, бот попросит выбрать модель принтера
             await message.answer("⚠ Пожалуйста, выберите ваш принтер:", reply_markup=keyboard)
     # Если текст не в списке кнопок, или не сработали регулярные выражения
     elif message.text.lower() not in available_printer_problems:
-        # Вывести сообщение
+        # Бот просит выбрать один из вариантов
         await message.answer("⚠ Пожалуйста, выберите один из вариантов, используя клавиатуру ниже. ⚠")
         # Создать кнопки с наименованием проблем с принтерами
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         for name in available_printer_problems:
             keyboard.add(name)
-        # Спросить пользователя, в чём его проблема
+        # Бот спрашивает пользователя, в чём его проблема
         await message.answer("🖨️ Какая у вас проблема с принтером?", reply_markup=keyboard)
         return
 
@@ -112,9 +112,9 @@ async def printer_other_problem_chosen(message: types.Message, state: FSMContext
     keyboard.row(available_printer_names[4], available_printer_names[5])
     keyboard.row(available_printer_names[6])
     keyboard.row(available_printer_names[7])
-    # Ожидаем следующее состояние с моделями принтера
+    # Бот ожидает следующее состояние с моделями принтера
     await OrderPrinter.waiting_for_printer_name.set()
-    # Предлагаем выбрать пользователю модель принтера
+    # Бот предлагает выбрать пользователю модель принтера
     await message.answer("⚠ Пожалуйста, выберите ваш принтер:", reply_markup=keyboard)
 
 
@@ -122,6 +122,7 @@ async def printer_other_problem_chosen(message: types.Message, state: FSMContext
 async def printer_chosen(message: types.Message, state: FSMContext):
     # Если выбрали вариант не с кнопки
     if message.text.lower() not in available_printer_names:
+        # Бот предложит выбрать вариант с кнопки
         await message.answer("⚠ Пожалуйста, выберите один из вариантов, используя клавиатуру ниже.")
         return
     # Если выбран вариант с кнопки
@@ -129,10 +130,11 @@ async def printer_chosen(message: types.Message, state: FSMContext):
         # Если выбрана неизвестная модель принтера
         if message.text.lower() == available_printer_names[len(available_printer_names) - 2].lower():
             print("unknown model")
-            # Ожидание следующего состояние и вывод сообщения
+            # Бот ожидает следующее состояние
             await OrderPrinter.waiting_for_unknown_printer_name.set()
+            # Бот предлагает написать название принтера
             await message.answer("⚠ Пожалуйста, напишите название модели принтера", reply_markup=types.ReplyKeyboardRemove())
-        # Иначе если выбрано другая модель принтера
+        # Иначе, если выбрано другая модель принтера
         elif message.text.lower() == available_printer_names[len(available_printer_names) - 1]:
             print("other")
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -141,10 +143,11 @@ async def printer_chosen(message: types.Message, state: FSMContext):
             # Расстановка кнопок в ряд
             keyboard.row(available_printer_sizes[0], available_printer_sizes[1])
             keyboard.row(available_printer_sizes[2], available_printer_sizes[3])
-            # Ожидание следующего состояние - размер принтеров. Вывод сообщения
+            # Бот ожидает следующее состояние - размер принтеров
             await OrderPrinter.waiting_for_printer_size.set()
+            # Бот предлагает написать описание принтера
             await message.answer("⚠ Пожалуйста, напишите описание принтера:", reply_markup=keyboard)
-        # Иначи если выбрана модель
+        # Иначе, если выбрана модель
         else:
             print("chosen model")
             # Добавить во временное хранилище информацию о модели принтера
@@ -156,8 +159,9 @@ async def printer_chosen(message: types.Message, state: FSMContext):
             keyboard.row(available_groups_in_mfc[0], available_groups_in_mfc[1])
             keyboard.row(available_groups_in_mfc[2], available_groups_in_mfc[3])
             keyboard.row(available_groups_in_mfc[4])
-            # Ожидание следующего состояние с отделами мфц. Вывод сообщения
+            # Бот ожидает следующее состояние с отделами мфц
             await OrderPrinter.waiting_available_group_in_mfc.set()
+            # Бот предлагает выбрать отдел
             await message.answer("⚠ Теперь укажите ваш отдел...", reply_markup=keyboard)
 
 # Функция для отображения неизвестной модели принтера
@@ -171,8 +175,9 @@ async def unknown_model_printer(message: types.Message, state: FSMContext):
     keyboard.row(available_groups_in_mfc[4])
     # for size in available_groups_in_mfc:
     #     keyboard.row(size)
-    # Ожидание следующего состояния - выбор отделов мфц
+    # Бот ожидает следующее состояние - выбор отделов мфц
     await OrderPrinter.waiting_available_group_in_mfc.set()
+    # Бот предлагает выбрать отдел
     await message.answer("⚠ Теперь укажите ваш отдел...", reply_markup=keyboard)
 
 # Функция для отображения размеров принтеров
@@ -190,8 +195,9 @@ async def printer_size_chosen(message: types.Message, state: FSMContext):
     keyboard.row(available_groups_in_mfc[0], available_groups_in_mfc[1])
     keyboard.row(available_groups_in_mfc[2], available_groups_in_mfc[3])
     keyboard.row(available_groups_in_mfc[4])
-    # Ожидание следующего состояния с выбором отделов мфц
+    # Бот ожидает следующее состояние с выбором отделов мфц
     await OrderPrinter.waiting_available_group_in_mfc.set()
+    # Бот предлагает выбрать отдел
     await message.answer("⚠ Теперь укажите ваш отдел...", reply_markup=keyboard)
 
 # Функция для выбора отделов мфц
@@ -204,8 +210,9 @@ async def group_in_mfc_chosen(message: types.Message, state: FSMContext):
     if message.text.lower() == "окна":
         # Добавить во временное хранилище выбранную информацию
         await state.update_data(chosen_window_mfc=message.text.lower())
-        # Ожидание следующего состояния - выбор окна. Вывод сообщения
+        # Бот ожидает следующее состояния - выбор окна
         await OrderPrinter.waiting_for_window.set()
+        # Бот предлагает выбрать окно
         await message.answer("⚠ Укажите ваше окно...", reply_markup=types.ReplyKeyboardRemove())
     # Если выбран другой вариант
     else:
@@ -255,26 +262,26 @@ async def window_chosen(message: types.Message, state: FSMContext):
     # Бот присылает подробную информацию с обращением по принтеру в группу
     return SendMessage(admin_group_id, answer_to_group)
 
-# Установка хандлеров для принтеров (перехватывают сообщения)
+# Установка хэндлеров для принтеров (перехватывают сообщения)
 def register_handlers_printer(dp: Dispatcher):
-    # Хандлер для команды для начала работы с принтером
+    # Хэндлер для команды для начала работы с принтером
     dp.register_message_handler(printer_start, commands="printer", state="*")
-    # Хандлер для выбора проблемы с принтером
+    # Хэндлер для выбора проблемы с принтером
     dp.register_message_handler(printer_problem_chosen, state=OrderPrinter.waiting_for_printer_problem)
-    # Хандлер для выбора других проблем
+    # Хэндлер для выбора других проблем
     dp.register_message_handler(printer_other_problem_chosen, state=OrderPrinter.waiting_for_other_printer_problem)
-    # Хандлер для выбранного принтера
+    # Хэндлер для выбранного принтера
     dp.register_message_handler(printer_chosen, state=OrderPrinter.waiting_for_printer_name)
-    # Хандлер , если выбран неизвестная модель принтера
+    # Хэндлер , если выбран неизвестная модель принтера
     dp.register_message_handler(unknown_model_printer, state=OrderPrinter.waiting_for_unknown_printer_name)
-    # Хандлер, если выбран тип принтера
+    # Хэндлер, если выбран тип принтера
     dp.register_message_handler(printer_size_chosen, state=OrderPrinter.waiting_for_printer_size)
-    # Хандлер для выбора отделов мфц
+    # Хэндлер для выбора отделов мфц
     dp.register_message_handler(group_in_mfc_chosen, state=OrderPrinter.waiting_available_group_in_mfc)
-    # Хандлер для выбора окна мфц
+    # Хэндлер для выбора окна мфц
     dp.register_message_handler(window_chosen, state=OrderPrinter.waiting_for_window)
     # Поиск через регулярные выражения
     dp.register_message_handler(printer_problem_chosen, regexp=regexp_printer, state="*")
-    # Хандлер, если написать принтер. Перехватывает через регулярные выражения
+    # Хэндлер, если написать принтер. Перехватывает через регулярные выражения
     dp.register_message_handler(printer_start, regexp=".*принтер.*", state="*")
 

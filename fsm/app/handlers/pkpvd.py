@@ -305,17 +305,17 @@ async def pkpvd_request_problem_try_again(message: types.Message, state: FSMCont
         await message.answer("⚠ Пожалуйста, выберите вариант из клавиатуры ниже\n"
                              "Побробовать ещё раз?")
 
-# Регистрация хандлеров для пк пвд
+# Регистрация хэндлеров для пк пвд
 def register_handlers_pkpvd(dp: Dispatcher):
-    # Хандлер для команды с пк пвд
+    # Хэндлер для команды с пк пвд
     dp.register_message_handler(pkpvd_start, commands="pkpvd", state="*")
-    # Хандлер для выбора проблемы с пк пвд
+    # Хэндлер для выбора проблемы с пк пвд
     dp.register_message_handler(pkpvd_problem_chosen, state=OrderPkpvd.waiting_for_pkpvd_problem)
-    # Хандлер для выбора проблемы с обращением
+    # Хэндлер для выбора проблемы с обращением
     dp.register_message_handler(pkpvd_request_problem, state=OrderPkpvd.waiting_for_pkpvd_request_problem)
-    # Хандлер для повторной попытки
+    # Хэндлер для повторной попытки
     dp.register_message_handler(pkpvd_request_problem_try_again, state=OrderPkpvd.waiting_for_pkpvd_request_problem_try_again)
-    # Хандлер для выбора другой проблемы с пк пвд
+    # Хэндлер для выбора другой проблемы с пк пвд
     dp.register_message_handler(pkpvd_other_problem_chosen, content_types=types.ContentType.all(), state=OrderPkpvd.waiting_for_other_pkpvd_problem)
     # Поиск через регулярные выражения
     dp.register_message_handler(pkpvd_start, regexp=regexp_pkpvd, state="*")

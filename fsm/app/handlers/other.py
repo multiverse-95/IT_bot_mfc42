@@ -34,7 +34,7 @@ async def unknown_comand(message: types.Message, state: FSMContext):
     # Бот предлагает выбрать доступные команды
     await message.answer(html_text, reply_markup=types.ReplyKeyboardRemove(), parse_mode=ParseMode.HTML)
 
-# Регистрация хендлеров для других команд
+# Регистрация хэндлеров для других команд
 def register_handlers_other_commands(dp: Dispatcher):
-    # Хендлер для других команд
+    # Хэндлер для других команд
     dp.register_message_handler(unknown_comand, regexp=".*", state="*")

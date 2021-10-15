@@ -260,17 +260,17 @@ async def ais_request_problem_try_again(message: types.Message, state: FSMContex
         await message.answer("⚠ Пожалуйста, выберите вариант из клавиатуры ниже\n"
                              "Побробовать ещё раз?")
 
-# Регистрация хандлеров (перехватывают сообщения)
+# Регистрация хэндлеров (перехватывают сообщения)
 def register_handlers_ais(dp: Dispatcher):
-    # Хандлер, если пользователь выбрал команду для аис
+    # Хэндлер, если пользователь выбрал команду для аис
     dp.register_message_handler(ais_start, commands="ais", state="*")
-    # Хандлер для выбора проблемы с аис
+    # Хэндлер для выбора проблемы с аис
     dp.register_message_handler(ais_problem_chosen, state=OrderAis.waiting_for_ais_problem)
-    # Хандлер для выбора проблемы с заявлением
+    # Хэндлер для выбора проблемы с заявлением
     dp.register_message_handler(ais_request_problem, state=OrderAis.waiting_for_ais_request_problem)
-    # Хандлер для повторной попытки с заявлением
+    # Хэндлер для повторной попытки с заявлением
     dp.register_message_handler(ais_request_problem_try_again, state=OrderAis.waiting_for_ais_request_problem_try_again)
-    # Хандлер для других проблем
+    # Хэндлер для других проблем
     dp.register_message_handler(ais_other_problem_chosen, content_types=types.ContentType.all(), state=OrderAis.waiting_for_other_ais_problem)
     # Поиск через регулярные выражения
     dp.register_message_handler(ais_start, regexp=regexp_ais, state="*")

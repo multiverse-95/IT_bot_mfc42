@@ -54,9 +54,9 @@
 #### Скриншот - Команда /printer
 ![Alt text](/screenshots/printer_start.PNG "Скриншот - Команда /printer")
 #### Скриншот - информация о заявке с принтером
-![Alt text](/screenshots/printer_all_info.PNG "Скриншот - информация о заявке с принтером")
+![Alt text](/screenshots/printer_all_info_fix.PNG "Скриншот - информация о заявке с принтером")
 #### Скриншот - информация переслана в группу IT
-![Alt text](/screenshots/group_info.PNG "Скриншот - информация переслана в группу IT")
+![Alt text](/screenshots/group_info_fix.PNG "Скриншот - информация переслана в группу IT")
 #### 8. Команда /cancel 
 Когда бот нас опрашивает и мы дали не тот вариант ответа, мы можем отменить действие и начать заново.
 Для этого нужно написать команду /cancel.

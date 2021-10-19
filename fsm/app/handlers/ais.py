@@ -1,7 +1,6 @@
 # Импорт библиотек для работы с сетью и json
 import requests
 import json
-import re
 # Импорт библиотек для бота
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
@@ -158,7 +157,15 @@ async def ais_request_problem(message: types.Message, state: FSMContext):
         cookie_ais = await ais_author.admin_authorization()
         # Сохраняем cookie в файл
         await ais_author.save_data_to_file(cookie_ais)
-    # numberreq = '7303506'
+
+    # Если авторизация в аис провалилась
+    if cookie_ais == "":
+        await message.answer("❗ Проблема с авторизацией в АИС. Обратитесь в IT-отдел", reply_markup=types.ReplyKeyboardRemove())
+        await message.answer(other_functions, reply_markup=types.ReplyKeyboardRemove(), parse_mode=ParseMode.HTML)
+        # Бот завершит состояние
+        await state.finish()
+        return
+    # Если авторизация в аис успешна
     # Номер заявления получаем от пользователя
     number_of_req = message.text
     # Payload для отправки в запрос
@@ -182,10 +189,10 @@ async def ais_request_problem(message: types.Message, state: FSMContext):
         # Заявление есть, ищем решение проблемы
         # Получаем список с историей заявления
         result = parsed_string[0]['result']
-        # Рамер списка
+        # Размер списка
         result_size = len(result)
         # Сообщение об ошибке с сервера
-        error_text = parsed_string[0]['result'][result_size - 1]['comment']
+        message_error = parsed_string[0]['result'][result_size - 1]['comment']
         # Сообщение если решение не удалось найти
         fix_not_found = 'К сожалению, решение не удалось найти. Попробуйте пересоздать заявление, правильно заполните все поля и попробуйте снова.\n' \
                         'Если ошибка не исчезнет, тогда позвоните в IT-отдел'
@@ -196,11 +203,14 @@ async def ais_request_problem(message: types.Message, state: FSMContext):
         # Идём по словарю, если находим ошибку, то записываем решение
         for i in range(len(available_ais_errors)):
             print('\n' + 'Ошибка: ' + list_code_errors[i])
-            result_re = re.match(list_code_errors[i], error_text)
-            if result_re is None:
+            index = message_error.find(list_code_errors[i])
+            # Если не найдено
+            if index == -1:
                 print('Not found')
+            # Если найдено совпадение
             else:
-                print('Совпадение с ошибкой: ' + result_re.group(0))
+                print('Совпадение с ошибкой: ' + available_ais_errors[list_code_errors[i]])
+                # Записываем решение в переменную
                 solveError = available_ais_errors[list_code_errors[i]]
                 break
         # Если решение не найдено

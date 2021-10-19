@@ -1,10 +1,12 @@
+import os
+
 import requests
 import json
 
 from fsm.app.config_reader import load_config
 # Класс для авторизации в пк пвд
 class PkpvdAuthorization:
-    # Функция для авторизации как администратор
+    # Функция для авторизации в ПК ПВД как администратор
     async def admin_authorization(self):
         # Парсинг файла конфигурации
         config = load_config("config/bot.ini")
@@ -24,6 +26,11 @@ class PkpvdAuthorization:
         # Получаем cookie
         cookie_pkpvd = str(session.cookies.get("JSESSIONID"))
         print("cookie:", cookie_pkpvd)
+        # Если авторизация в пк пвд провалилась
+        if not await self.check_if_cookie_valid(cookie_pkpvd):
+            print("LOGIN PK PVD IS INCORRECT!")
+            cookie_pkpvd = ""
+            return cookie_pkpvd
         # Возвращаем cookie
         return cookie_pkpvd
 
@@ -37,20 +44,33 @@ class PkpvdAuthorization:
         passwordPkPvd = config.tg_bot.admin_pkpvd_password
         # Сохраняем логин, пароль и cookie в файл
         dataPkpvd = {'login_pkpvd': loginPkpvd, 'password_pkpvd': passwordPkPvd, 'cookie_pkpvd': cookiePkpvd}
-
-        with open(r"C:\it_bot_mfc42\it_bot_pkpvd_settings.json", 'w', encoding='utf-8') as f:
-            json.dump(dataPkpvd, f, ensure_ascii=False, indent=4)
+        # Путь к директории файла
+        dirpath = "C:\it_bot_mfc42"
+        if os.path.exists(dirpath) and os.path.isdir(dirpath):
+            print("YES exist DIR")
+            with open(r"C:\it_bot_mfc42\it_bot_pkpvd_settings.json", 'w', encoding='utf-8') as f:
+                json.dump(dataPkpvd, f, ensure_ascii=False, indent=4)
+        # Если директории не существует, то создаем директорию и файл в нём
+        else:
+            print("NO EXIST DIR")
+            os.mkdir(dirpath)
+            with open(r"C:\it_bot_mfc42\it_bot_pkpvd_settings.json", 'w', encoding='utf-8') as f:
+                json.dump(dataPkpvd, f, ensure_ascii=False, indent=4)
 
     # Функция для чтения cookie с файла
     async def read_cookie_from_file(self):
-        # Откроем файл с настройками
-        with open(r"C:\it_bot_mfc42\it_bot_pkpvd_settings.json", encoding='utf-8') as f:
-            data_from_json = json.load(f)
-
-        print(data_from_json)
-        # Парсим cookie
-        cookie_from_json = data_from_json['cookie_pkpvd']
-        print('cookie json file', data_from_json['cookie_pkpvd'])
+        path_to_file = r"C:\it_bot_mfc42\it_bot_pkpvd_settings.json"
+        # Проверяем наличие файла
+        if os.path.exists(path_to_file):
+            # Откроем файл с настройками
+            with open(path_to_file, encoding='utf-8') as f:
+                data_from_json = json.load(f)
+            print(data_from_json)
+            # Парсим cookie
+            cookie_from_json = data_from_json['cookie_pkpvd']
+            print('cookie json file', data_from_json['cookie_pkpvd'])
+        else:
+            cookie_from_json = ""
         # Возвращаем cookie
         return cookie_from_json
 

@@ -164,6 +164,15 @@ async def pkpvd_request_problem(message: types.Message, state: FSMContext):
         cookie_pkpvd = await pkpvd_author.admin_authorization()
         # Сохранить cookie в файл
         await pkpvd_author.save_data_to_file(cookie_pkpvd)
+
+    # Если авторизация в пк пвд провалилась
+    if cookie_pkpvd == "":
+        await message.answer("❗ Проблема с авторизацией в ПК ПВД. Обратитесь в IT-отдел", reply_markup=types.ReplyKeyboardRemove())
+        await message.answer(other_functions, reply_markup=types.ReplyKeyboardRemove(), parse_mode=ParseMode.HTML)
+        # Бот завершит состояние
+        await state.finish()
+        return
+    # Если авторизация в пк пвд успешна
     # Получить номер обращения от пользователя
     number_of_req = message.text.upper()
     # Отправить запрос на сервер с номером обращения

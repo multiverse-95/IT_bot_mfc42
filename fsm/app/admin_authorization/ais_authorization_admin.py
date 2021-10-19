@@ -1,9 +1,14 @@
+import os
+
 import requests
 import json
 
 from fsm.app.config_reader import load_config
-# Класс, отвечающий за авторизацию в АИС
+
+
+# Класс для авторизации в АИС
 class AisAuthorization:
+    # Функция для авторизации в АИС как администратор
     async def admin_authorization(self):
         # Парсинг файла конфигурации
         config = load_config("config/bot.ini")
@@ -25,7 +30,12 @@ class AisAuthorization:
         # Получаем cookie, который позже активируем
         first_cookie = str(session.cookies.get("JSESSIONID"))
         print("First cookie:", first_cookie)
-
+        # Если авторизация в АИС провалилась, возвращаем пустой cookie
+        if response.status_code != 200:
+            print("LOGIN AIS IS INCORRECT!")
+            first_cookie = ""
+            return first_cookie
+        # Если авторизация успешна, получаем права админа
         # Второй этап авторизации
         print("Confirm autoriz")
         # Создаём сессию
@@ -67,7 +77,6 @@ class AisAuthorization:
             print("Login Success!")
         else:
             print("Login FAILED!")
-
 
         # Второй этап для получения прав администратора в АИС
         print("Admin role")
@@ -141,18 +150,34 @@ class AisAuthorization:
         # Получаем пароль с конфиг файла
         passwordAis = config.tg_bot.admin_ais_password
         dataAis = {'login_ais': loginAis, 'password_ais': passwordAis, 'cookie_ais': cookieAis}
-        with open(r"C:\it_bot_mfc42\it_bot_ais_settings.json", 'w', encoding='utf-8') as f:
-            json.dump(dataAis, f, ensure_ascii=False, indent=4)
+        # Путь к директории файла
+        dirpath = "C:\it_bot_mfc42"
+        # Проверяем наличие директории
+        if os.path.exists(dirpath) and os.path.isdir(dirpath):
+            print("YES exist DIR")
+            with open(r"C:\it_bot_mfc42\it_bot_ais_settings.json", 'w', encoding='utf-8') as f:
+                json.dump(dataAis, f, ensure_ascii=False, indent=4)
+        # Если директории не существует, то создаем директорию и файл в нём
+        else:
+            print("NO EXIST DIR")
+            os.mkdir(dirpath)
+            with open(r"C:\it_bot_mfc42\it_bot_ais_settings.json", 'w', encoding='utf-8') as f:
+                json.dump(dataAis, f, ensure_ascii=False, indent=4)
 
     # Функция для чтения cookie с конфиг файла
     async def read_cookie_from_file(self):
-        with open(r"C:\it_bot_mfc42\it_bot_ais_settings.json", encoding='utf-8') as f:
-            data_from_json = json.load(f)
-
-        print(data_from_json)
-        # Парсим cookie с файла
-        cookie_from_json = data_from_json['cookie_ais']
-        print('cookie json file', data_from_json['cookie_ais'])
+        # Путь к файлу
+        path_to_file = r"C:\it_bot_mfc42\it_bot_ais_settings.json"
+        # Проверяем наличие файла
+        if os.path.exists(path_to_file):
+            with open(path_to_file, encoding='utf-8') as f:
+                data_from_json = json.load(f)
+            print(data_from_json)
+            # Парсим cookie с файла
+            cookie_from_json = data_from_json['cookie_ais']
+            print('cookie json file', data_from_json['cookie_ais'])
+        else:
+            cookie_from_json = ""
         # Возвращаем cookie
         return cookie_from_json
 
@@ -174,11 +199,12 @@ class AisAuthorization:
         # Получаем ответ с сервера
         resp_json = response.text
         # parsed_string = json.loads(resp_json)
-        print("JSON VALID "+ str(validateJSON(resp_json)))
+        print("JSON VALID " + str(validateJSON(resp_json)))
         # Проверяем json на корректность
         isJsonValid = validateJSON(resp_json)
         # Возвращаем результат проверки
         return isJsonValid
+
 
 # Функция для проверки json на корректность
 def validateJSON(jsonData):
